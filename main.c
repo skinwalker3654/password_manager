@@ -7,6 +7,11 @@ typedef enum {
     LIST_PASSWORDS,
 } list_type;
 
+typedef enum {
+    ADD_BY_USER,
+    ADD_BY_FILE,
+} adding_service_way;
+
 typedef struct Service {
     int id;
     char name[256];
@@ -14,54 +19,114 @@ typedef struct Service {
 } Service;
 
 typedef struct  list_of_service {
-    Service services[200];
+    Service *services;
+    int capacity;
     int counter;
 } list_of_service;
 
-void add_service(list_of_service *ptr,char *name) {
+list_of_service *init() {
+    list_of_service *services = malloc(sizeof(list_of_service));
+    if(!services) {
+        printf("[ERR] Failed to initialize the list\n");
+        exit(EXIT_FAILURE);
+    }
+
+    services->counter = 0;
+    services->capacity = 2;
+
+    services->services = malloc(sizeof(Service)*services->capacity);
+    if(!services->services) {
+        printf("[ERR] Failed to initialize the list\n");
+        free(services);
+        exit(EXIT_FAILURE);
+    }
+
+    return services;
+}
+
+void free_services(list_of_service *service) {
+    if(!service && !service->services) return;
+
+    free(service->services);
+    service->services = NULL;
+
+    free(service);
+    service = NULL;
+}
+
+void add_service(list_of_service *ptr,char *name,char *password,adding_service_way way) {
     char answear[200];
     char newanswear[200];
-    char password[200];
-    while(1) {
-        printf("\nAre you sure you want to add that? yes/no: ");
-        fgets(answear,sizeof(answear),stdin);
-        answear[strcspn(answear,"\n")] = 0;
+    char users_password[200];
 
-        if(strcmp(answear,"yes")==0) {
-            printf("Enter the service's password: ");
-            fgets(password,sizeof(password),stdin);
-            password[strcspn(password,"\n")] = 0;
+    if(way == ADD_BY_USER) {
+        while(1) {
+            printf("\nAre you sure you want to add that? yes/no: ");
+            fgets(answear,sizeof(answear),stdin);
+            answear[strcspn(answear,"\n")] = 0;
 
-            while(1) {
-                printf("Are you sure you want this password? yes/no: ");
-                fgets(newanswear,sizeof(newanswear),stdin);
-                newanswear[strcspn(newanswear,"\n")] = 0;
+            if(strcmp(answear,"yes")==0) {
+                printf("Enter the service's password: ");
+                fgets(users_password,sizeof(users_password),stdin);
+                users_password[strcspn(users_password,"\n")] = 0;
 
-                if(strcmp(newanswear,"yes")==0) {
-                    ptr->services[ptr->counter].id = ptr->counter+1;
-                    strcpy(ptr->services[ptr->counter].name,name);
-                    strcpy(ptr->services[ptr->counter].password,password);
+                while(1) {
+                    printf("Are you sure you want this password? yes/no: ");
+                    fgets(newanswear,sizeof(newanswear),stdin);
+                    newanswear[strcspn(newanswear,"\n")] = 0;
 
-                    ptr->counter++;
-                    printf("[OK] Service added succesfully\n\n");
-                    return;
-                } else if(strcmp(newanswear,"no")==0) {
-                    printf("\n");
-                    return;
-                } else {
-                    printf("[ERR] Invalid answear: '%s'\n",newanswear);
-                    continue;
+                    if(strcmp(newanswear,"yes")==0) {
+                        if(ptr->counter >= ptr->capacity) {
+                            ptr->capacity *= 2;
+                            Service *temp = realloc(ptr->services,sizeof(Service)*ptr->capacity);
+                            if(!temp) {
+                                printf("[ERR] Failed to allocate memory\n");
+                                return;
+                            }
+
+                            ptr->services = temp;
+                        }
+
+                        ptr->services[ptr->counter].id = ptr->counter+1;
+                        strcpy(ptr->services[ptr->counter].name,name);
+                        strcpy(ptr->services[ptr->counter].password,users_password);
+
+                        ptr->counter++;
+                        printf("[OK] Service added succesfully\n\n");
+                        return;
+                    } else if(strcmp(newanswear,"no")==0) {
+                        printf("\n");
+                        return;
+                    } else {
+                        printf("[ERR] Invalid answear: '%s'\n",newanswear);
+                        continue;
+                    }
                 }
+            } else if(strcmp(answear,"no")==0) {
+                printf("\n");
+                return;
+            } else {
+                printf("[ERR] Invalid answear '%s'\n",answear);
+                continue;
             }
-            ptr->services[ptr->counter].id = ptr->counter++;
-            strcpy(ptr->services[ptr->counter].name,name);
-        } else if(strcmp(answear,"no")==0) {
-            printf("\n");
-            return;
-        } else {
-            printf("[ERR] Invalid answear '%s'\n",answear);
-            continue;
         }
+    } else if(way == ADD_BY_FILE) {
+        if(ptr->counter >= ptr->capacity) {
+            ptr->capacity *= 2;
+            Service *temp = realloc(ptr->services,sizeof(Service)*ptr->capacity);
+            if(!temp) {
+                printf("[ERR] Failed to load more services due to memory issues\n");
+                return;
+            }
+
+            ptr->services = temp;
+        }
+
+        ptr->services[ptr->counter].id = ptr->counter+1;
+        strcpy(ptr->services[ptr->counter].name,name);
+        strcpy(ptr->services[ptr->counter].password,password);
+
+        ptr->counter++;
     }
 }
 
@@ -134,11 +199,11 @@ void save_to_file(list_of_service *ptr) {
         printf("[ERR] Failed to save the passwords\n");
         return;
     }
-
-    if(fwrite(ptr,sizeof(*ptr),1,file)==-1) {
-        printf("[ERR] Failed to write content to file\n");
-        fclose(file);
-        return;
+    
+    for(int i=0; i<ptr->counter; i++) {
+        fprintf(file,"%s|%s|\n" ,
+                ptr->services[i].name,
+                ptr->services[i].password);
     }
 
     fclose(file);
@@ -148,10 +213,14 @@ void load_from_file(list_of_service *ptr) {
     FILE *file = fopen(".passwords","r");
     if(!file) return;
 
-    if(fread(ptr,sizeof(*ptr),1,file)==-1) {
-        printf("[ERR] Failed to load the contnets\n");
-        fclose(file);
-        return;
+    char line[256];
+    char name[256];
+    char password[256];
+
+    while(fgets(line,sizeof(line),file)) {
+        if(sscanf(line,"%[^|]|%[^|]|",name,password)==2) {
+            add_service(ptr,name,password,ADD_BY_FILE);
+        }
     }
 
     fclose(file);
@@ -162,16 +231,16 @@ void print_help() {
     printf("  add \"service_name\"        - adds a service\n");
     printf("  remove <service_number>   - deletes a service\n");
     printf("  list / list passwords     - lists services / lists services and there passwords\n");
-    printf("  help                      - prints this panel\n\n");
-    printf("  exit                      - exits the program\n");
+    printf("  help                      - prints this panel\n");
+    printf("  exit                      - exits the program\n\n");
 }
 
 int main(void) {
     char input[256];
     char *args[10];
 
-    list_of_service services = {0};
-    load_from_file(&services);
+    list_of_service *services = init();
+    load_from_file(services);
 
     while(1) {
         printf(">> ");
@@ -194,7 +263,7 @@ int main(void) {
                 continue;
             }
 
-            add_service(&services,args[1]);
+            add_service(services,args[1],0,ADD_BY_USER);
             continue;
         } else if(strcmp(args[0],"remove")==0) {
             if(counter != 2) {
@@ -210,7 +279,7 @@ int main(void) {
                 continue;
             }
 
-            remove_service(&services,id);
+            remove_service(services,id);
             continue;
         } else if(strcmp(args[0],"list")==0) {
             if(counter != 2 && counter != 1) {
@@ -220,7 +289,7 @@ int main(void) {
             }
 
             if(counter == 1) {
-                list_services(&services,LIST);
+                list_services(services,LIST);
                 continue;
             }
 
@@ -230,7 +299,7 @@ int main(void) {
                 continue;
             }
     
-            list_services(&services,LIST_PASSWORDS);
+            list_services(services,LIST_PASSWORDS);
             continue;
         } else if(strcmp(args[0],"help")==0) {
             if(counter != 1) {
@@ -248,8 +317,9 @@ int main(void) {
                 continue;
             }
 
-            save_to_file(&services);
+            save_to_file(services);
             printf("[EXIT] Exiting...\n");
+            free_services(services);
             return 0;
         } else {
             printf("[ERR] Invalid command '%s'\n",input);
