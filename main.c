@@ -293,8 +293,8 @@ int main(void) {
             char *endPtr;
             int id = strtol(args[1],&endPtr,10);
             if(*endPtr != '\0') {
-                printf(RED "[ERR] Invalid service number '%s'\n" RESET,args[1]);
-                printf(YELLOW "[HELP] Service number must be an integer\n" RESET);
+                printf(RED "\n[ERR] Invalid service number '%s'\n" RESET,args[1]);
+                printf(YELLOW "[HELP] Service number must be an integer\n\n" RESET);
                 continue;
             }
 
@@ -341,8 +341,8 @@ int main(void) {
             free_services(services);
             return 0;
         } else {
-            printf(RED "[ERR] Invalid command '%s'\n" RESET,input);
-            printf(YELLOW "[HELP] Type 'help' for more details\n" RESET);
+            printf(RED "\n[ERR] Invalid command '%s'\n" RESET,input);
+            printf(YELLOW "[HELP] Type 'help' for more details\n\n" RESET);
             continue;
         }
     }
