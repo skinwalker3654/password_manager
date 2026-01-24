@@ -45,13 +45,13 @@ list_of_service *init() {
 }
 
 void free_services(list_of_service *service) {
-    if(!service && !service->services) return;
-
-    free(service->services);
-    service->services = NULL;
+    if(!service) return;
+    if(service->services) {
+        free(service->services);
+        service->services = NULL;
+    }
 
     free(service);
-    service = NULL;
 }
 
 void add_service(list_of_service *ptr,char *name,char *password,adding_service_way way) {
@@ -77,13 +77,14 @@ void add_service(list_of_service *ptr,char *name,char *password,adding_service_w
 
                     if(strcmp(newanswear,"yes")==0) {
                         if(ptr->counter >= ptr->capacity) {
-                            ptr->capacity *= 2;
-                            Service *temp = realloc(ptr->services,sizeof(Service)*ptr->capacity);
+                            int new_capacity = ptr->capacity *= 2;
+                            Service *temp = realloc(ptr->services,sizeof(Service)*new_capacity);
                             if(!temp) {
                                 printf("[ERR] Failed to allocate memory\n");
                                 return;
                             }
 
+                            ptr->capacity = new_capacity;
                             ptr->services = temp;
                         }
 
@@ -112,13 +113,14 @@ void add_service(list_of_service *ptr,char *name,char *password,adding_service_w
         }
     } else if(way == ADD_BY_FILE) {
         if(ptr->counter >= ptr->capacity) {
-            ptr->capacity *= 2;
-            Service *temp = realloc(ptr->services,sizeof(Service)*ptr->capacity);
+            int new_capacity = ptr->capacity *= 2;
+            Service *temp = realloc(ptr->services,sizeof(Service)*new_capacity);
             if(!temp) {
                 printf("[ERR] Failed to load more services due to memory issues\n");
                 return;
             }
 
+            ptr->capacity = new_capacity;
             ptr->services = temp;
         }
 
@@ -269,6 +271,7 @@ int main(void) {
             if(counter != 2) {
                 printf("\n[ERR] Invalid usage '%s'\n",input);
                 printf("[ERR] Correct usage: remove <service_number>\n\n");
+                continue;
             }
 
             char *endPtr;
