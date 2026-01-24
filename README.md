@@ -42,4 +42,6 @@ make run
 ```bash
 make clean
 ```
-# password_manager
+## SCREENSHOT
+![alt text](https://github.com/skinwalker3654/password_manager/blob/main/.github/screenshot.png?raw=true)
+---
