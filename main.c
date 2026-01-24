@@ -2,6 +2,15 @@
 #include <string.h>
 #include <stdlib.h>
 
+#define RESET   "\033[0m"
+#define RED     "\033[1;31m"
+#define GREEN   "\033[1;32m"
+#define YELLOW  "\033[1;33m"
+#define BLUE    "\033[1;34m"
+#define MAGENTA "\033[1;35m"
+#define CYAN    "\033[1;36m"
+#define WHITE   "\033[1;37m"
+
 typedef enum {
     LIST,
     LIST_PASSWORDS,
@@ -27,7 +36,7 @@ typedef struct  list_of_service {
 list_of_service *init() {
     list_of_service *services = malloc(sizeof(list_of_service));
     if(!services) {
-        printf("[ERR] Failed to initialize the list\n");
+        printf(RED "[ERR] Failed to initialize the list\n" RESET);
         exit(EXIT_FAILURE);
     }
 
@@ -36,7 +45,7 @@ list_of_service *init() {
 
     services->services = malloc(sizeof(Service)*services->capacity);
     if(!services->services) {
-        printf("[ERR] Failed to initialize the list\n");
+        printf(RED "[ERR] Failed to initialize the list\n" RESET);
         free(services);
         exit(EXIT_FAILURE);
     }
@@ -61,17 +70,17 @@ void add_service(list_of_service *ptr,char *name,char *password,adding_service_w
 
     if(way == ADD_BY_USER) {
         while(1) {
-            printf("\nAre you sure you want to add that? yes/no: ");
+            printf(YELLOW "\nAre you sure you want to add that? yes/no: " RESET);
             fgets(answear,sizeof(answear),stdin);
             answear[strcspn(answear,"\n")] = 0;
 
             if(strcmp(answear,"yes")==0) {
-                printf("Enter the service's password: ");
+                printf(CYAN "Enter the service's password: " RESET);
                 fgets(users_password,sizeof(users_password),stdin);
                 users_password[strcspn(users_password,"\n")] = 0;
 
                 while(1) {
-                    printf("Are you sure you want this password? yes/no: ");
+                    printf(YELLOW "Are you sure you want this password? yes/no: " RESET);
                     fgets(newanswear,sizeof(newanswear),stdin);
                     newanswear[strcspn(newanswear,"\n")] = 0;
 
@@ -80,7 +89,7 @@ void add_service(list_of_service *ptr,char *name,char *password,adding_service_w
                             int new_capacity = ptr->capacity *= 2;
                             Service *temp = realloc(ptr->services,sizeof(Service)*new_capacity);
                             if(!temp) {
-                                printf("[ERR] Failed to allocate memory\n");
+                                printf(RED "[ERR] Failed to allocate memory\n" RESET);
                                 return;
                             }
 
@@ -93,13 +102,13 @@ void add_service(list_of_service *ptr,char *name,char *password,adding_service_w
                         strcpy(ptr->services[ptr->counter].password,users_password);
 
                         ptr->counter++;
-                        printf("[OK] Service added succesfully\n\n");
+                        printf(GREEN "[OK] Service added succesfully\n\n" RESET);
                         return;
                     } else if(strcmp(newanswear,"no")==0) {
                         printf("\n");
                         return;
                     } else {
-                        printf("[ERR] Invalid answear: '%s'\n",newanswear);
+                        printf(RED "[ERR] Invalid answear: '%s'\n" RESET,newanswear);
                         continue;
                     }
                 }
@@ -107,7 +116,7 @@ void add_service(list_of_service *ptr,char *name,char *password,adding_service_w
                 printf("\n");
                 return;
             } else {
-                printf("[ERR] Invalid answear '%s'\n",answear);
+                printf(RED "[ERR] Invalid answear '%s'\n" RESET,answear);
                 continue;
             }
         }
@@ -116,7 +125,7 @@ void add_service(list_of_service *ptr,char *name,char *password,adding_service_w
             int new_capacity = ptr->capacity *= 2;
             Service *temp = realloc(ptr->services,sizeof(Service)*new_capacity);
             if(!temp) {
-                printf("[ERR] Failed to load more services due to memory issues\n");
+                printf(RED "[ERR] Failed to load more services due to memory issues\n" RESET);
                 return;
             }
 
@@ -134,18 +143,18 @@ void add_service(list_of_service *ptr,char *name,char *password,adding_service_w
 
 void remove_service(list_of_service *ptr,int id) {
     if(ptr->counter == 0) {
-        printf("[ERR] Service list is empty\n");
+        printf(RED "[ERR] Service list is empty\n" RESET);
         return;
     }
 
     if(ptr->counter < id) {
-        printf("[ERR] This task does not exists\n");
+        printf(RED "[ERR] This task does not exists\n" RESET);
         return;
     }
 
     char answear[200];
     while(1) {
-        printf("\nAre you sure you want to delete this service? yes/no: ");
+        printf(YELLOW "\nAre you sure you want to delete this service? yes/no: " RESET);
         fgets(answear,sizeof(answear),stdin);
         answear[strcspn(answear,"\n")] = 0;
 
@@ -157,13 +166,13 @@ void remove_service(list_of_service *ptr,int id) {
             if(ptr->counter != 0)
                 for(int i=0; i<ptr->counter; i++) ptr->services[i].id = i+1;
 
-            printf("[OK] Task deleted succesfully\n\n");
+            printf(GREEN "[OK] Task deleted succesfully\n\n" RESET);
             return;
         } else if(strcmp(answear,"no")==0) {
             printf("\n");
             return;
         } else {
-            printf("[ERR] Invalid answear '%s'\n",answear);
+            printf(RED "[ERR] Invalid answear '%s'\n" RESET,answear);
             continue;
         }
     }
@@ -171,34 +180,34 @@ void remove_service(list_of_service *ptr,int id) {
 
 void list_services(list_of_service *ptr,list_type type) {
     if(ptr->counter == 0) {
-        printf("[ERR] Service list is empty\n");
+        printf(RED "[ERR] Service list is empty\n" RESET);
         return;
     }
 
     if(type == LIST) {
-        printf("\n");
+        printf(CYAN "\n=== Services List ===\n" RESET);
         for(int i=0; i<ptr->counter; i++) {
-            printf("%d) %s\n"
+            printf(MAGENTA "%d) " CYAN "%s\n" RESET
                     ,ptr->services[i].id
                     ,ptr->services[i].name);
         }
-        printf("\n");
+        printf(CYAN "====================\n\n" RESET);
     } else if(type == LIST_PASSWORDS) {
-        printf("\n");
+        printf(CYAN "\n=== Services with Passwords ===\n" RESET);
         for(int i=0; i<ptr->counter; i++) {
-            printf("%d) %s : %s\n"
+            printf(MAGENTA "%d) " CYAN "%s" YELLOW " : " GREEN "%s\n" RESET
                     ,ptr->services[i].id
                     ,ptr->services[i].name
                     ,ptr->services[i].password);
         }
-        printf("\n");
+        printf(CYAN "================================\n\n" RESET);
     }
 }
 
 void save_to_file(list_of_service *ptr) {
     FILE *file = fopen(".passwords","w");
     if(!file) {
-        printf("[ERR] Failed to save the passwords\n");
+        printf(RED "[ERR] Failed to save the passwords\n" RESET);
         return;
     }
     
@@ -229,23 +238,30 @@ void load_from_file(list_of_service *ptr) {
 }
 
 void print_help() {
-    printf("\nCommands:\n");
-    printf("  add \"service_name\"        - adds a service\n");
-    printf("  remove <service_number>   - deletes a service\n");
-    printf("  list / list passwords     - lists services / lists services and there passwords\n");
-    printf("  help                      - prints this panel\n");
-    printf("  exit                      - exits the program\n\n");
+    printf(CYAN "\n=== Available Commands ===\n" RESET);
+    printf(YELLOW "  add \"service_name\"        " RESET "- adds a service\n");
+    printf(YELLOW "  remove <service_number>   " RESET "- deletes a service\n");
+    printf(YELLOW "  list                      " RESET "- lists services\n");
+    printf(YELLOW "  list passwords            " RESET "- lists services with their passwords\n");
+    printf(YELLOW "  help                      " RESET "- prints this panel\n");
+    printf(YELLOW "  exit                      " RESET "- exits the program\n");
+    printf(CYAN "=============================\n\n" RESET);
 }
 
 int main(void) {
     char input[256];
     char *args[10];
 
+    printf(CYAN "\n=== Password Manager ===\n" RESET);
+    printf(YELLOW "Type 'help' to see available commands\n\n" RESET);
+    
     list_of_service *services = init();
     load_from_file(services);
 
     while(1) {
-        printf(">> ");
+        printf(GREEN ">> " RESET);
+        fflush(stdout);
+        
         fgets(input,sizeof(input),stdin);
         input[strcspn(input,"\n")] = 0;
 
@@ -260,8 +276,8 @@ int main(void) {
 
         if(strcmp(args[0],"add")==0) {
             if(counter != 2) {
-                printf("\n[ERR] Invalid usage '%s'\n",input);
-                printf("[ERR] Correct usage: add \"service_name\"\n\n");
+                printf(RED "\n[ERR] Invalid usage '%s'\n" RESET,input);
+                printf(YELLOW "[HELP] Correct usage: add \"service_name\"\n\n" RESET);
                 continue;
             }
 
@@ -269,16 +285,16 @@ int main(void) {
             continue;
         } else if(strcmp(args[0],"remove")==0) {
             if(counter != 2) {
-                printf("\n[ERR] Invalid usage '%s'\n",input);
-                printf("[ERR] Correct usage: remove <service_number>\n\n");
+                printf(RED "\n[ERR] Invalid usage '%s'\n" RESET,input);
+                printf(YELLOW "[HELP] Correct usage: remove <service_number>\n\n" RESET);
                 continue;
             }
 
             char *endPtr;
             int id = strtol(args[1],&endPtr,10);
             if(*endPtr != '\0') {
-                printf("[ERR] Invalid service number '%s'\n",args[1]);
-                printf("[ERR] Service number must be an integer\n");
+                printf(RED "[ERR] Invalid service number '%s'\n" RESET,args[1]);
+                printf(YELLOW "[HELP] Service number must be an integer\n" RESET);
                 continue;
             }
 
@@ -286,8 +302,8 @@ int main(void) {
             continue;
         } else if(strcmp(args[0],"list")==0) {
             if(counter != 2 && counter != 1) {
-                printf("\n[ERR] Invalid usage '%s'\n",input);
-                printf("[ERR] Correct usage: list [OR] list passwords\n\n");
+                printf(RED "\n[ERR] Invalid usage '%s'\n" RESET,input);
+                printf(YELLOW "[HELP] Correct usage: list [OR] list passwords\n\n" RESET);
                 continue;
             }
 
@@ -297,8 +313,8 @@ int main(void) {
             }
 
             if(counter == 2 && strcmp(args[1],"passwords")!=0) {
-                printf("\n[ERR] Invalid list mode '%s'\n",args[1]);
-                printf("[ERR] Available list modes: list [OR] list passwords\n\n");
+                printf(RED "\n[ERR] Invalid list mode '%s'\n" RESET,args[1]);
+                printf(YELLOW "[HELP] Available list modes: list [OR] list passwords\n\n" RESET);
                 continue;
             }
     
@@ -306,8 +322,8 @@ int main(void) {
             continue;
         } else if(strcmp(args[0],"help")==0) {
             if(counter != 1) {
-                printf("\n[ERR] Invalid usage '%s'\n",input);
-                printf("[ERR] Correct usage: help\n\n");
+                printf(RED "\n[ERR] Invalid usage '%s'\n" RESET,input);
+                printf(YELLOW "[HELP] Correct usage: help\n\n" RESET);
                 continue;
             }
 
@@ -315,18 +331,18 @@ int main(void) {
             continue;
         } else if(strcmp(args[0],"exit")==0) {
             if(counter != 1) {
-                printf("\n[ERR] Invalid usage '%s'\n",input);
-                printf("[ERR] Correct usage: exit\n\n");
+                printf(RED "\n[ERR] Invalid usage '%s'\n" RESET,input);
+                printf(YELLOW "[HELP] Correct usage: exit\n\n" RESET);
                 continue;
             }
 
             save_to_file(services);
-            printf("[EXIT] Exiting...\n");
+            printf(CYAN "\n[EXIT] Exiting Password Manager...\n" RESET);
             free_services(services);
             return 0;
         } else {
-            printf("[ERR] Invalid command '%s'\n",input);
-            printf("[ERR] Type 'help' for more details\n");
+            printf(RED "[ERR] Invalid command '%s'\n" RESET,input);
+            printf(YELLOW "[HELP] Type 'help' for more details\n" RESET);
             continue;
         }
     }
