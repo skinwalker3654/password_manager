@@ -191,6 +191,59 @@ void remove_service(list_of_service *ptr,int id) {
     }
 }
 
+void change_service(list_of_service *ptr,char *name) {
+    if(ptr->counter == 0) {
+        printf(RED "[ERR] Service list is empty\n" RESET);
+        return;
+    }
+
+    char answear[200];
+    char password[200];
+    char newanswear[200];
+
+    for(int i=0; i<ptr->counter; i++) {
+        if(strcmp(ptr->services[i].name,name)==0) {
+            while(1) {
+                printf(YELLOW"\nAre you sure you want to change? yes/no: "RESET);
+                fgets(answear,sizeof(answear),stdin);
+                answear[strcspn(answear,"\n")] = 0;
+
+                if(strcmp(answear,"yes")==0) {
+                    printf(CYAN "Enter new password: " RESET);
+                    fgets(password,sizeof(password),stdin);
+                    password[strcspn(password,"\n")] = 0;
+
+                    while(1) {
+                        printf(YELLOW "Are you sure you want this password? yes/no: " RESET);
+                        fgets(newanswear,sizeof(newanswear),stdin);
+                        newanswear[strcspn(newanswear,"\n")] = 0;
+
+                        if(strcmp(newanswear,"yes")==0) {
+                            strcpy(ptr->services[i].password,password);
+                            printf(GREEN"[OK] Service password changed succesfully\n\n"RESET);
+                            return;
+                        } else if(strcmp(newanswear,"no")==0) {
+                            printf("\n");
+                            return;
+                        } else {
+                            printf(RED "[ERR] Invalid answear '%s'\n" RESET,answear);
+                            continue;
+                        }
+                    }
+                } else if(strcmp(answear,"no")==0) {
+                    printf("\n");
+                    return;
+                } else {
+                    printf(RED "[ERR] Invalid answear '%s'\n" RESET,answear);
+                    continue;
+                }
+            } 
+        }
+    }
+
+    printf(RED"[ERR] Service with name ('%s') not found\n"RESET,name);
+}
+
 void list_services(list_of_service *ptr,list_type type) {
     if(ptr->counter == 0) {
         printf(RED "[ERR] Service list is empty\n" RESET);
@@ -254,6 +307,7 @@ void print_help() {
     printf(CYAN "\n=== Available Commands ===\n" RESET);
     printf(YELLOW "  add \"service_name\"        " RESET "- adds a service\n");
     printf(YELLOW "  remove <service_number>   " RESET "- deletes a service\n");
+    printf(YELLOW "  change \"service_name\"     "RESET "- changes service password\n");
     printf(YELLOW "  list                      " RESET "- lists services\n");
     printf(YELLOW "  list passwords            " RESET "- lists services with their passwords\n");
     printf(YELLOW "  help                      " RESET "- prints this panel\n");
@@ -295,6 +349,15 @@ int main(void) {
             }
 
             add_service(services,args[1],0,ADD_BY_USER);
+            continue;
+        } else if(strcmp(args[0],"change")==0) {
+            if(counter != 2) {
+                printf(RED "\n[ERR] Invalid usage '%s'\n" RESET,input);
+                printf(YELLOW "[HELP] Correct usage: change \"service_name\"\n\n" RESET);
+                continue;
+            }
+
+            change_service(services,args[1]);
             continue;
         } else if(strcmp(args[0],"remove")==0) {
             if(counter != 2) {
