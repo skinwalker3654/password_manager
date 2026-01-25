@@ -69,6 +69,19 @@ void add_service(list_of_service *ptr,char *name,char *password,adding_service_w
     char users_password[200];
 
     if(way == ADD_BY_USER) {
+        int found = 0;
+        for(int i=0; i<ptr->counter; i++) {
+            if(strcmp(ptr->services[i].name,name)==0) {
+                found = 1;
+                break;
+            }
+        }
+        
+        if(found) {
+            printf(RED"[ERR] Service with the same name ('%s') already exists\n",name);
+            return;
+        }
+
         while(1) {
             printf(YELLOW "\nAre you sure you want to add that? yes/no: " RESET);
             fgets(answear,sizeof(answear),stdin);
