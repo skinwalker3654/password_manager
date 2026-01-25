@@ -12,6 +12,7 @@ It allows you to store services and passwords locally in a binary file.
 - List services with their passwords
 - Remove services by ID 
 - Persistent storage using a local file (`.passwords`)
+- Change passwords by name
 - Interactive confirmation prompts to avoid mistakes
 
 ---
@@ -23,6 +24,7 @@ It allows you to store services and passwords locally in a binary file.
 | `add "service_name"` | Add a new service |
 | `remove <id>` | Remove a service by ID |
 | `list` | List all services |
+| `change "service_name"`| Change a service password |
 | `list passwords` | List services and their passwords |
 | `help` | Show help panel |
 | `exit` | Save and exit |
