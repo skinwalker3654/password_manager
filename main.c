@@ -191,7 +191,7 @@ void list_services(list_of_service *ptr,list_type type) {
                     ,ptr->services[i].id
                     ,ptr->services[i].name);
         }
-        printf(CYAN "====================\n\n" RESET);
+        printf(CYAN "=====================\n\n" RESET);
     } else if(type == LIST_PASSWORDS) {
         printf(CYAN "\n=== Services with Passwords ===\n" RESET);
         for(int i=0; i<ptr->counter; i++) {
@@ -200,7 +200,7 @@ void list_services(list_of_service *ptr,list_type type) {
                     ,ptr->services[i].name
                     ,ptr->services[i].password);
         }
-        printf(CYAN "================================\n\n" RESET);
+        printf(CYAN "===============================\n\n" RESET);
     }
 }
 
@@ -245,7 +245,7 @@ void print_help() {
     printf(YELLOW "  list passwords            " RESET "- lists services with their passwords\n");
     printf(YELLOW "  help                      " RESET "- prints this panel\n");
     printf(YELLOW "  exit                      " RESET "- exits the program\n");
-    printf(CYAN "=============================\n\n" RESET);
+    printf(CYAN "==========================\n\n" RESET);
 }
 
 int main(void) {
