@@ -62,8 +62,8 @@ void free_services(list_of_service *service) {
 }
 
 void add_service(list_of_service *ptr,char *name,char *password,adding_service_way way) {
-    char answear[200];
-    char newanswear[200];
+    char answer[200];
+    char newanswer[200];
     char users_password[200];
 
     if(way == ADD_BY_USER) {
@@ -82,20 +82,20 @@ void add_service(list_of_service *ptr,char *name,char *password,adding_service_w
 
         while(1) {
             printf(YELLOW "\nAre you sure you want to add that? yes/no: " RESET);
-            fgets(answear,sizeof(answear),stdin);
-            answear[strcspn(answear,"\n")] = 0;
+            fgets(answer,sizeof(answer),stdin);
+            answer[strcspn(answer,"\n")] = 0;
 
-            if(strcmp(answear,"yes")==0) {
+            if(strcmp(answer,"yes")==0) {
                 printf(CYAN "Enter the service's password: " RESET);
                 fgets(users_password,sizeof(users_password),stdin);
                 users_password[strcspn(users_password,"\n")] = 0;
 
                 while(1) {
                     printf(YELLOW "Are you sure you want this password? yes/no: " RESET);
-                    fgets(newanswear,sizeof(newanswear),stdin);
-                    newanswear[strcspn(newanswear,"\n")] = 0;
+                    fgets(newanswer,sizeof(newanswer),stdin);
+                    newanswer[strcspn(newanswer,"\n")] = 0;
 
-                    if(strcmp(newanswear,"yes")==0) {
+                    if(strcmp(newanswer,"yes")==0) {
                         if(ptr->counter >= ptr->capacity) {
                             int new_capacity = ptr->capacity *= 2;
                             Service *temp = realloc(ptr->services,sizeof(Service)*new_capacity);
@@ -115,19 +115,19 @@ void add_service(list_of_service *ptr,char *name,char *password,adding_service_w
                         ptr->counter++;
                         printf(GREEN "[OK] Service added succesfully\n\n" RESET);
                         return;
-                    } else if(strcmp(newanswear,"no")==0) {
+                    } else if(strcmp(newanswer,"no")==0) {
                         printf("\n");
                         return;
                     } else {
-                        printf(RED "[ERR] Invalid answear: '%s'\n" RESET,newanswear);
+                        printf(RED "[ERR] Invalid answer: '%s'\n" RESET,newanswer);
                         continue;
                     }
                 }
-            } else if(strcmp(answear,"no")==0) {
+            } else if(strcmp(answer,"no")==0) {
                 printf("\n");
                 return;
             } else {
-                printf(RED "[ERR] Invalid answear '%s'\n" RESET,answear);
+                printf(RED "[ERR] Invalid answer '%s'\n" RESET,answer);
                 continue;
             }
         }
@@ -163,13 +163,13 @@ void remove_service(list_of_service *ptr,int id) {
         return;
     }
 
-    char answear[200];
+    char answer[200];
     while(1) {
         printf(YELLOW "\nAre you sure you want to delete this service? yes/no: " RESET);
-        fgets(answear,sizeof(answear),stdin);
-        answear[strcspn(answear,"\n")] = 0;
+        fgets(answer,sizeof(answer),stdin);
+        answer[strcspn(answer,"\n")] = 0;
 
-        if(strcmp(answear,"yes")==0) {
+        if(strcmp(answer,"yes")==0) {
             for(int i=id-1; i<ptr->counter-1; i++)
                 ptr->services[i] = ptr->services[i+1];
             ptr->counter--;
@@ -179,11 +179,11 @@ void remove_service(list_of_service *ptr,int id) {
 
             printf(GREEN "[OK] Task deleted succesfully\n\n" RESET);
             return;
-        } else if(strcmp(answear,"no")==0) {
+        } else if(strcmp(answer,"no")==0) {
             printf("\n");
             return;
         } else {
-            printf(RED "[ERR] Invalid answear '%s'\n" RESET,answear);
+            printf(RED "[ERR] Invalid answer '%s'\n" RESET,answer);
             continue;
         }
     }
@@ -195,44 +195,44 @@ void change_service(list_of_service *ptr,char *name) {
         return;
     }
 
-    char answear[200];
+    char answer[200];
     char password[200];
-    char newanswear[200];
+    char newanswer[200];
 
     for(int i=0; i<ptr->counter; i++) {
         if(strcmp(ptr->services[i].name,name)==0) {
             while(1) {
                 printf(YELLOW"\nAre you sure you want to change? yes/no: "RESET);
-                fgets(answear,sizeof(answear),stdin);
-                answear[strcspn(answear,"\n")] = 0;
+                fgets(answer,sizeof(answer),stdin);
+                answer[strcspn(answer,"\n")] = 0;
 
-                if(strcmp(answear,"yes")==0) {
+                if(strcmp(answer,"yes")==0) {
                     printf(CYAN "Enter new password: " RESET);
                     fgets(password,sizeof(password),stdin);
                     password[strcspn(password,"\n")] = 0;
 
                     while(1) {
                         printf(YELLOW "Are you sure you want this password? yes/no: " RESET);
-                        fgets(newanswear,sizeof(newanswear),stdin);
-                        newanswear[strcspn(newanswear,"\n")] = 0;
+                        fgets(newanswer,sizeof(newanswer),stdin);
+                        newanswer[strcspn(newanswer,"\n")] = 0;
 
-                        if(strcmp(newanswear,"yes")==0) {
+                        if(strcmp(newanswer,"yes")==0) {
                             strcpy(ptr->services[i].password,password);
                             printf(GREEN"[OK] Service password changed succesfully\n\n"RESET);
                             return;
-                        } else if(strcmp(newanswear,"no")==0) {
+                        } else if(strcmp(newanswer,"no")==0) {
                             printf("\n");
                             return;
                         } else {
-                            printf(RED "[ERR] Invalid answear '%s'\n" RESET,answear);
+                            printf(RED "[ERR] Invalid answer '%s'\n" RESET,answer);
                             continue;
                         }
                     }
-                } else if(strcmp(answear,"no")==0) {
+                } else if(strcmp(answer,"no")==0) {
                     printf("\n");
                     return;
                 } else {
-                    printf(RED "[ERR] Invalid answear '%s'\n" RESET,answear);
+                    printf(RED "[ERR] Invalid answer '%s'\n" RESET,answer);
                     continue;
                 }
             } 
