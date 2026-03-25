@@ -25,7 +25,7 @@ typedef struct Service {
     char password[256]; 
 } Service;
 
-typedef struct  list_of_service {
+typedef struct list_of_service {
     Service *services;
     int capacity;
     int counter;
